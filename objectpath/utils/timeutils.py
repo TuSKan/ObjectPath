@@ -12,7 +12,7 @@ try:
 except ImportError:
   pass
 
-from objectpath.core import STR_TYPES
+from objectpath.core import STR_TYPES,ITER_TYPES
 
 HOURS_IN_DAY = 24
 
@@ -26,77 +26,102 @@ def round9_10(n):
 
 # TODO its 31 minuta, should be 31 minut - probably done
 
-def age(date, reference=None, lang="en"):
+def age(arg):
+  date = arg[0]
+
+  try:
+    reference = arg[1]
+  except:
+    reference = None
+
+  try:
+    lang = arg[2]
+  except:
+    lang = 'en'
+
   if reference is None:
     reference = now()
   td = reference - date  #TimeDelta
 
   days = float(td.days)
-  langIsPL = lang == "pl"
   if days:
-    years = round9_10(days/356)
+    years = round9_10(days/365)
     if years:
-      if langIsPL:
-        return (years, years is 1 and "rok" or years < 5 and "lata" or "lat")
+      if lang == "pl":
+        return [years, years is 1 and "rok" or years < 5 and "lata" or "lat"]
+      elif lang == "en":
+        return [years, years is 1 and "year" or "years"]
       else:
-        return (years, years is 1 and "year" or "years")
+        return years
 
     months = round9_10(days/30)
     if months:
-      if langIsPL:
-        return (
+      if lang == "pl":
+        return [
             months, months is 1 and "miesiąc" or 1 < months < 5 and "miesiące"
             or "miesięcy"
-        )
+        ]
+      elif lang == "en":
+        return [months, months is 1 and "month" or "months"]
       else:
-        return (months, months is 1 and "month" or "months")
+        return months
 
     weeks = round9_10(days/7)
     if weeks:
-      if langIsPL:
-        return (
+      if lang == "pl":
+        return [
             weeks, weeks is 1 and "tydzień"
             or weeks % 10 in [0, 1, 5, 6, 7, 8, 9] and "tygodni" or "tygodnie"
-        )
+        ]
+      elif lang == "en":
+        return [weeks, weeks is 1 and "week" or "weeks"]
       else:
-        return (weeks, weeks is 1 and "week" or "weeks")
+        return weeks
 
     days = int(days)
-    if langIsPL:
-      return (days, days is 1 and "dzień" or "dni")
+    if lang == "pl":
+      return [days, days is 1 and "dzień" or "dni"]
+    elif lang == "en":
+      return [days, days is 1 and "day" or "days"]
     else:
-      return (days, days is 1 and "day" or "days")
+      return days
 
   seconds = float(td.seconds)
   if seconds is not None:
     hours = round9_10(seconds/3600)
     if hours:
-      if langIsPL:
-        return (
+      if lang == "pl":
+        return [
             hours, hours is 1 and "godzina" or 1 < hours < 5 and "godziny"
             or "godzin"
-        )
+        ]
+      elif lang == "en":
+        return [hours, hours is 1 and "hour" or "hours"]
       else:
-        return (hours, hours is 1 and "hour" or "hours")
+        return hours
 
     minutes = round9_10(seconds/60)
     if minutes:
-      if langIsPL:
-        return (
+      if lang == "pl":
+        return [
             minutes, minutes is 1 and "minuta" or 1 < minutes < 5 and "minuty"
             or "minut"
-        )
+        ]
+      elif lang == "en":
+        return [minutes, minutes is 1 and "minute" or "minutes"]
       else:
-        return (minutes, minutes is 1 and "minute" or "minutes")
+        return minutes
 
     seconds = int(seconds)
-    if langIsPL:
-      return (
+    if lang == "pl":
+      return [
           seconds, seconds is 1 and "sekunda" or 1 < seconds < 5 and "sekundy"
           or "sekund"
-      )
+      ]
+    elif lang == "en":
+      return [seconds, seconds is 1 and "second" or "seconds"]
     else:
-      return (seconds, seconds is 1 and "second" or "seconds")
+      return seconds
   # return (0,"seconds")
 
 def date(d):
@@ -199,6 +224,9 @@ def dateTime(arg):
       return dt
     if typed in (tuple, list) and len(dt) in [5, 6, 7]:
       return datetime.datetime(*dt)
+    if type(arg) in ITER_TYPES:
+      arg = list(arg[0])
+      l = len(arg)
   if l is 2:
     date = time = None
     typeArg0 = type(arg[0])

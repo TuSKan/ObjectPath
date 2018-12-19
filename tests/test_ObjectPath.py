@@ -693,6 +693,12 @@ class ObjectPath_Paths(unittest.TestCase):
       execute3("$..*[@.x is 5.6 and @.y is 9.891].value"), ['bar']
     )
 
+    #map args
+    self.assertEqual(
+        sorted(execute2("$.store.book[@.price]")),
+        sorted([8.95, 12.99, 8.99, 22.99])
+    )
+
   def test_object_list(self):
     self.assertItemsEqual(execute3('values($.*).value'), ['foo', 'bar', 'foobar'])
     self.assertItemsEqual(execute3('keys($.*)'), ['item_1', 'item_2', 'item_3'])
